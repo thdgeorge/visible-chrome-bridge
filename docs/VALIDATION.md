@@ -1,6 +1,6 @@
 # Validation record
 
-Preview implementation checked on 2026-10-22. These results describe the tested
+Initial implementation checked on 2026-10-22. These results describe the tested
 revision and do not certify future dependency releases or a production rollout.
 
 ## Executed locally
@@ -44,7 +44,7 @@ privileges, clean-machine interactive credential installation, actual logon star
 scheduled-task behavior, consent decline/reconnect and negative authentication paths,
 and upgrades/rollback across different upstream versions.
 
-No stable release has been published, and no production readiness is claimed.
+The first non-prerelease v0.1.0 is an initial public version, **not a production-readiness certification**; broader manual acceptance remains incomplete.
 
 ## First real-PC manual QA: 2026-10-22
 
@@ -102,7 +102,7 @@ Remaining broader manual acceptance gates from `CONTRIBUTING.md` are:
 
 Live MCP child memory/environment was not inspected; key stripping was verified
 with the actual launcher and synthetic child in offline tests. Broader pending
-checks are not passes or evidence of a failure. No stable release is approved.
+checks are not passes or evidence of a failure. No production-ready release or complete multi-machine acceptance is claimed.
 
 The failed first installation left an empty directory before writing its owner
 marker. The installer now removes only that newly created empty directory when
