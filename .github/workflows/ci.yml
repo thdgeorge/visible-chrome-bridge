@@ -18,8 +18,11 @@ jobs:
         with:
           node-version: '24'
       - name: Offline Windows safety and lifecycle checks
-        shell: ${{ matrix.shell }}
-        run: .\tests\Run-Tests.ps1
+        shell: pwsh
+        run: |
+          $engine = '${{ matrix.shell }}'
+          & $engine -NoLogo -NoProfile -NonInteractive -File .\tests\Run-Tests.ps1
+          exit $LASTEXITCODE
       - name: JavaScript syntax and whitespace
         shell: pwsh
         run: |
