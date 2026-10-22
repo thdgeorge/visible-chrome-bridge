@@ -6,6 +6,7 @@
 | --- | --- |
 | Operating system | Windows 10/11 x64; both remain manual acceptance targets |
 | Shell | Windows PowerShell 5.1 or PowerShell 7 on Windows |
+| Download method | Git for Windows **or** GitHub release ZIP (Git optional) |
 | Node.js | Node 22.12+ LTS in the 22.x line, or Node 24 LTS, with npm on PATH |
 | Browser | Installed Google Chrome 144+; prefer current stable |
 | Network | HTTPS to official GitHub releases, npm registry, and OpenAI tunnel service |
@@ -14,13 +15,19 @@
 
 Review upstream [MCP requirements](https://github.com/ChromeDevTools/chrome-devtools-mcp#requirements) when selecting newer dependencies. Corporate application control, proxy, or browser policy may block execution or consent. Coordinate with your administrator instead of bypassing those policies.
 
-Check dependencies in a fresh PowerShell window:
+Install prerequisites from [Node.js](https://nodejs.org/en/download), [Google Chrome](https://www.google.com/chrome/) and optionally [Git for Windows](https://git-scm.com/downloads/win).
+
+Check dependencies in a fresh **non-admin** PowerShell window:
 
 ```powershell
 $PSVersionTable.PSVersion
 node --version
 npm --version
+# If using Git rather than ZIP:
+git --version
 ```
+
+If a command is missing, install that prerequisite and open a new PowerShell window. Do not bypass corporate policies or globally weaken execution restrictions.
 
 The installer checks prerequisites and downloads verified payloads. It does not install Node.js or Chrome. No global npm installation is needed.
 
@@ -29,10 +36,12 @@ The installer checks prerequisites and downloads verified payloads. It does not 
 ```powershell
 git clone https://github.com/thdgeorge/visible-chrome-bridge.git
 Set-Location visible-chrome-bridge
-.\Install-Windows.ps1
+.\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0
 ```
 
-Alternatively extract a reviewed archive and open PowerShell in that directory. Review script origin before execution. If Windows marks the archive as downloaded, use Properties > Unblock before extraction only after verifying it. Follow your organization's execution policy; no permanent policy change is required.
+These exact upstream versions reproduce the **tested beta baseline**. Omitting both version flags on a **fresh install** selects the **current stable upstream versions** instead; those may include security/compatibility fixes but are not automatically covered by the earlier QA. See [version-selection guidance](UPDATES.md#tested-beta-baseline-versus-upstream-latest). Re-running the installer preserves the existing payload; use `Update-Bridge.ps1` to change installed dependency versions.
+
+**No Git installed?** Download the reviewed `Source code (zip)` from [GitHub Releases](https://github.com/thdgeorge/visible-chrome-bridge/releases), extract it, open PowerShell **inside the extracted project directory containing `Install-Windows.ps1`**, and run the same installer command. Git is not required. Review script origin before execution. If Windows marks the archive as downloaded, use Properties > Unblock before extraction only after verifying it. Follow your organization's execution policy; no permanent policy change is required.
 
 Enter the tunnel ID and runtime API key only at the secure interactive prompts. Do not put them in command arguments, transcripts, screenshots, issues, or repository files. A rerun preserves credentials and existing settings unless explicitly changed. `-ReplaceCredentials` deliberately asks for replacement credentials; stop your bridge before changing its installation.
 
@@ -67,7 +76,22 @@ Start Chrome yourself. In Chrome 144+, open `chrome://inspect/#remote-debugging`
 .\Get-BridgeStatus.ps1
 ```
 
-Start creates a hidden worker using installed dependencies. Process and local health checks are diagnostic stages, not proof of tunnel authentication, Chrome consent, or tool success. Finish [ChatGPT setup](CHATGPT-SETUP.md) and its browser test before calling installation successful.
+Start creates a hidden worker using installed dependencies. **It continues after the PowerShell window closes**. Chrome is not launched by the bridge; logon startup is **off by default**.
+
+## Verify installation and first browser call
+
+After `Start-Bridge.ps1`, inspect `Get-BridgeStatus.ps1` from the same Windows account and data root:
+
+| Status | Expected | Interpretation |
+| --- | --- | --- |
+| `Installed` | `True` | Owned local installation exists |
+| `Running` | `True` | Bridge worker is running |
+| `Healthy` | `True` | Local health endpoint answered successfully |
+| `RuntimeReady` | `True` | Local tunnel runtime is ready; **not proof of ChatGPT/browser access** |
+| `BrowserVerified` | `False` is normal | **Always `False`**: local status cannot observe the result of your ChatGPT browser test |
+| `TunnelVersion`, `McpVersion` | Installed versions | Useful for diagnosing mismatches |
+
+If runtime readiness is pending, wait briefly and check the status again. If still unhealthy, see [troubleshooting](TROUBLESHOOTING.md). **Finish ChatGPT setup:** create the `Visible Chrome` plugin using **your tunnel**, manually open [https://example.com/](https://example.com/) in Chrome, and run the [read-only title test](CHATGPT-SETUP.md#prove-the-complete-path). Only a successful ChatGPT tool call with title **Example Domain** confirms the complete path.
 
 ## Optional startup and update policy
 
