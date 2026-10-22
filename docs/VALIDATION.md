@@ -18,8 +18,9 @@ revision and do not certify future dependency releases or a production rollout.
   incompatible repair rejection, staging failure, update, and rollback.
 - Archive corruption/traversal rejection, trusted-origin validation, npm lock
   origin/integrity validation, and missing-dependency diagnostics.
-- Official tunnel-client 0.0.17 and Chrome DevTools MCP 1.11.0 downloaded to a
-  separate temporary directories from both PowerShell shells, archive and license-sidecar SHA-256 verified,
+- Official tunnel-client 0.0.17 and Chrome DevTools MCP 1.11.0 downloaded to
+  separate temporary directories from both PowerShell shells. Archive and
+  license-sidecar SHA-256 verified,
   npm integrity lock validated, lifecycle scripts disabled, CLI version/help
   compatibility checked. No real credentials were supplied.
 - A real official download deliberately supplied the wrong SHA-256 was rejected
@@ -29,8 +30,9 @@ revision and do not certify future dependency releases or a production rollout.
   the real upstream command parser, stdio initialization, response forwarding,
   stripped MCP environment, and health checks. It does not use OpenAI or Chrome.
 - Four pre-existing profile/runner file hashes matched their read-only baseline;
-  the original tunnel process was still running with its original PID. No
-  pre-existing configuration, startup registration, credentials, or logs changed.
+  the original tunnel process was still running with its original PID. Validation
+  did not write to pre-existing configuration, startup registration, credentials,
+  or logs. The running legacy process may continue writing its own logs.
 
 Unit/fixture checks do not establish real provider or browser behavior. No
 screenshots or browser data were captured.
