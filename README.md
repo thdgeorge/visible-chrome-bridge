@@ -6,14 +6,16 @@ A per-user Windows bridge from ChatGPT to your already-running Google Chrome. It
 
 ## Recommended tunnel and plugin names
 
-Each developer creates a **separate** tunnel and private ChatGPT plugin. To make setup predictable, use these suggested display names and replace `<YOUR_NAME>` with your name (for example, `George`):
+Use the same **generic labels** on every installation. Each developer must still create **their own** tunnel, runtime key and private ChatGPT connection.
 
-| Where | Name to enter |
+| Where | Recommended name |
 | --- | --- |
-| OpenAI Platform tunnel | `Visible Chrome Bridge - <YOUR_NAME>` |
-| ChatGPT custom MCP plugin | `Visible Chrome - <YOUR_NAME>` |
+| OpenAI Platform tunnel | `Visible Chrome Bridge` |
+| ChatGPT custom MCP plugin | `Visible Chrome` |
+| Separate test tunnel (optional) | `Visible Chrome Bridge QA` |
+| Separate test plugin (optional) | `Visible Chrome QA` |
 
-For suggested **descriptions** and precise fields to copy, see [ChatGPT setup — names and descriptions](docs/CHATGPT-SETUP.md#recommended-names-and-descriptions). Append ` - QA` for an isolated test connection or ` - Work` when you need to distinguish work from personal connections. These are labels, not credentials: the actual connection uses **your own tunnel ID**, runtime key, and workspace association.
+Copyable descriptions and authentication/visibility settings are in [ChatGPT setup](docs/CHATGPT-SETUP.md#recommended-names-and-descriptions). Names are cosmetic, not connection identifiers: always select **your own tunnel ID** and use your own restricted runtime key. If your organization needs to distinguish multiple identically named tunnels, add a recognizable optional suffix.
 
 ## Start here
 
