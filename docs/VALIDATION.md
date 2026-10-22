@@ -36,6 +36,12 @@ revision and do not certify future dependency releases or a production rollout.
 Unit/fixture checks do not establish real provider or browser behavior. No
 screenshots or browser data were captured.
 
+## v0.1.0 updater regression checks (2026-10-22)
+
+- PR #6 Windows CI ran the **isolated, offline test suite** successfully: **18/18 scenarios on Windows PowerShell 5.1 and 18/18 on PowerShell 7.6.6**, including the additional single-component dependency-update regression test. Original PR run: [Windows validation](https://github.com/thdgeorge/visible-chrome-bridge/actions/runs/39791289236).
+- The synthetic metadata/payload test exercises: `-McpVersion` preserving the installed tunnel-client version; `-TunnelVersion` preserving installed MCP; unchanged-version no-op; explicit two-version selection; and no-version latest selection. Tests use a private fixture data root, stubbed upstream metadata, and **no real tunnel credentials or running Chrome**.
+- This validates the **version-selection logic**, not a live update between two real Chrome MCP releases. Real update, rollback, and ChatGPT tool refresh remain manual acceptance targets.
+
 ## Required manual acceptance
 
 Follow [CONTRIBUTING.md](../CONTRIBUTING.md#manual-acceptance-checklist) before a
