@@ -1,0 +1,14 @@
+# Per-user state is never a repository artifact.
+node_modules/
+.state/
+.test-results/
+*.log
+*.dpapi
+*.secret
+.env
+.env.*
+!.env.example
+*.zip
+*.tgz
+coverage/
+.codex/
