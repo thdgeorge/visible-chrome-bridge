@@ -72,4 +72,4 @@ Accept Chrome's permission prompt only if you expected it. The expected title is
 
 Record success only after the browser tool result returns. Local health or a tool list does not prove the whole path. Follow [troubleshooting](TROUBLESHOOTING.md) if the test fails.
 
-After dependency updates, manually review/rescan tools with your ChatGPT interface's controls. No documented public automatic tool-catalog refresh API was found in the reviewed setup documentation. The bridge does not claim to refresh ChatGPT for you.
+After upstream dependency updates, the existing private plugin and tunnel remain valid. **If tool definitions changed**, refresh/review the existing custom MCP app's action catalog using the applicable ChatGPT workspace app settings (admin/manager permissions may be required); changes are not applied automatically. The bridge cannot refresh ChatGPT for you. See [OpenAI's refresh guidance](https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt) and [the exact update workflow](UPDATES.md#updating-just-one-component).

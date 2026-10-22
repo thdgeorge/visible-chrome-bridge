@@ -1,6 +1,6 @@
 # Visible Chrome Bridge
 
-> **Beta / preview.** A real ChatGPT → Chrome tool call succeeded on the maintainer's Windows PC. Clean-machine installation, failure paths, logon startup and live updates/rollback still require QA. See [validation](docs/VALIDATION.md); this is not production-certified.
+> **Initial v0.1.x release.** A real ChatGPT → Chrome tool call succeeded on the maintainer's Windows PC. Clean-machine installation, failure paths, logon startup and live updates/rollback still require QA. See [validation](docs/VALIDATION.md); a non-prerelease version does **not** mean production certification.
 
 Use ChatGPT with your **existing, running Google Chrome** through the official [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) and [OpenAI Secure MCP Tunnel](https://github.com/openai/tunnel-client). The bridge does not create Chrome profiles, restart Chrome, or expose a public browser-debugging port.
 
@@ -15,10 +15,10 @@ Use ChatGPT with your **existing, running Google Chrome** through the official [
    ```powershell
    git clone https://github.com/thdgeorge/visible-chrome-bridge.git
    cd visible-chrome-bridge
-   .\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0
+   .\Install-Windows.ps1
    ```
 
-   These exact upstream versions reproduce the **tested beta combination**. Omitting both version flags on a fresh install instead selects the current stable upstream versions, which may not yet be validated here; see [version guidance](docs/UPDATES.md#tested-beta-baseline-versus-upstream-latest). Alternatively, on the [repository Code page](https://github.com/thdgeorge/visible-chrome-bridge), choose **Code → Download ZIP** for the current `main` source (or use a versioned archive from [Releases](https://github.com/thdgeorge/visible-chrome-bridge/releases)). Extract it, open PowerShell **inside the project folder**, and run the same installer command. You do not need Git for ZIP. The installer downloads official dependencies and asks for the tunnel ID and runtime key in **hidden local prompts**. It does not start the bridge.
+   On a **fresh install**, the installer selects the latest stable upstream tunnel-client and Chrome DevTools MCP versions and pins them locally. The original tested combination was tunnel-client **0.0.17** and Chrome DevTools MCP **1.11.0**; newer versions are not automatically covered by that QA. To reproduce the original pair, explicitly use `.\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0`. See [version guidance](docs/UPDATES.md#tested-versions-versus-upstream-latest). Alternatively, on the [repository Code page](https://github.com/thdgeorge/visible-chrome-bridge), choose **Code → Download ZIP** for the current `main` source (or use a versioned archive from [Releases](https://github.com/thdgeorge/visible-chrome-bridge/releases)). Extract it, open PowerShell **inside the project folder**, and run the same installer command. You do not need Git for ZIP. The installer downloads official dependencies and asks for the tunnel ID and runtime key in **hidden local prompts**. It does not start the bridge.
 
 3. **Prepare Chrome and start.** Open your usual Chrome profile, go to `chrome://inspect/#remote-debugging`, and enable remote debugging. From the project directory:
 
@@ -61,7 +61,7 @@ Run from the checkout or the installed `app` folder under `%LOCALAPPDATA%\Visibl
 .\Check-Updates.ps1
 ```
 
-The hidden worker **continues after closing the PowerShell window**. Starting it automatically after a Windows login is **off by default**; see [optional startup](docs/INSTALLATION.md#optional-startup-and-update-policy). Updates and rollback require the bridge to be stopped. `Update-Bridge.ps1` updates upstream dependencies, **not the project wrapper**; see [updates](docs/UPDATES.md).
+The hidden worker **continues after closing the PowerShell window**. Starting it automatically after a Windows login is **off by default**; see [optional startup](docs/INSTALLATION.md#optional-startup-and-update-policy). Updates and rollback require the bridge to be stopped. `Update-Bridge.ps1` updates upstream dependencies, **not the project wrapper**. For a single MCP update, run `Stop-Bridge.ps1`, then `Update-Bridge.ps1 -McpVersion X.Y.Z`, then `Start-Bridge.ps1`: the installed tunnel-client version stays unchanged. See [updates and ChatGPT tool refresh](docs/UPDATES.md#updating-just-one-component).
 
 ## Documentation
 

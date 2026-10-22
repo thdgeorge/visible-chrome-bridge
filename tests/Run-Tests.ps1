@@ -259,6 +259,57 @@ try {
             } finally { foreach ($name in $originals.Keys) { Set-Item ('Function:\'+$name) $originals[$name] } }
         } $root $node
     }
+    Test-Case 'Updating one upstream preserves the other; updating both or latest remains available' {
+        $root=New-TestOwnedRoot 'upstream version independence'
+        & $bridgeModule {
+            param($r)
+            # Fully offline, isolated version-selection fixture. Never touch real installs.
+            $names=@('Get-BridgePrerequisites','Get-BridgeReleaseInfo','Get-BridgeMcpInfo','New-BridgePayload')
+            $originals=@{}
+            foreach ($name in $names) { $originals[$name]=(Get-Item ('Function:\'+$name)).ScriptBlock }
+            try {
+                Set-Item Function:\Get-BridgePrerequisites { [pscustomobject]@{NodePath='fixture-node';NpmPath='fixture-npm'} }
+                Set-Item Function:\Get-BridgeReleaseInfo {
+                    param($Version)
+                    if (-not $Version) { $Version='0.0.20' }
+                    return [pscustomobject]@{Version=$Version}
+                }
+                Set-Item Function:\Get-BridgeMcpInfo {
+                    param($Version)
+                    if (-not $Version) { $Version='1.14.0' }
+                    return [pscustomobject]@{Version=$Version}
+                }
+                Set-Item Function:\New-BridgePayload {
+                    param($Root,$Prerequisites,$TunnelInfo,$McpInfo)
+                    return [pscustomobject]@{Directory='payloads\fixture';TunnelVersion=$TunnelInfo.Version;McpVersion=$McpInfo.Version}
+                }
+                Write-BridgeJson (Join-Path $r 'state.json') @{Schema=1;NodePath='fixture-node';Current=@{Directory='payloads\original';TunnelVersion='0.0.17';McpVersion='1.11.0'};Previous=$null;PreviousNodePath=$null;StartAtLogon=$false;UpdatePolicy='Manual'}
+
+                $result=Update-Bridge -Root $r -McpVersion '1.12.0'
+                $state=Get-BridgeState $r
+                if (-not $result.Changed -or $state.Current.TunnelVersion -ne '0.0.17' -or $state.Current.McpVersion -ne '1.12.0') { throw 'MCP-only update changed the pinned tunnel version' }
+                if ($state.Previous.TunnelVersion -ne '0.0.17' -or $state.Previous.McpVersion -ne '1.11.0') { throw 'MCP-only update lost the previous payload' }
+
+                $before=(Get-FileHash -LiteralPath (Join-Path $r 'state.json')).Hash
+                $noop=Update-Bridge -Root $r -McpVersion '1.12.0'
+                if ($noop.Changed -or (Get-FileHash -LiteralPath (Join-Path $r 'state.json')).Hash -ne $before) { throw 'Repeating an installed MCP version changed state' }
+
+                $result=Update-Bridge -Root $r -TunnelVersion '0.0.18'
+                $state=Get-BridgeState $r
+                if (-not $result.Changed -or $state.Current.TunnelVersion -ne '0.0.18' -or $state.Current.McpVersion -ne '1.12.0') { throw 'Tunnel-only update changed the pinned MCP version' }
+
+                $result=Update-Bridge -Root $r -TunnelVersion '0.0.19' -McpVersion '1.13.0'
+                $state=Get-BridgeState $r
+                if (-not $result.Changed -or $state.Current.TunnelVersion -ne '0.0.19' -or $state.Current.McpVersion -ne '1.13.0') { throw 'Explicit two-version update failed' }
+
+                $result=Update-Bridge -Root $r
+                $state=Get-BridgeState $r
+                if (-not $result.Changed -or $state.Current.TunnelVersion -ne '0.0.20' -or $state.Current.McpVersion -ne '1.14.0') { throw 'Unqualified update no longer resolves latest of both' }
+            } finally {
+                foreach ($name in $names) { Set-Item ('Function:\'+$name) $originals[$name] }
+            }
+        } $root
+    }
     Test-Case 'Failed initial private storage setup removes only its new empty directory' {
         $root=Join-Path $testRoot 'failed first installation'
         & $bridgeModule {

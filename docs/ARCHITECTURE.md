@@ -2,7 +2,7 @@
 
 Design audit: 2026-10-22. This is an independent Windows lifecycle wrapper for
 official upstream software, not an MCP server or a browser automation engine.
-One real Windows happy-path ChatGPT/Chrome connection was accepted with mixed direct/user-reported evidence; broader clean-machine and negative-path tests remain acceptance gates before a stable release. See [validation](VALIDATION.md).
+One real Windows happy-path ChatGPT/Chrome connection was accepted with mixed direct/user-reported evidence; broader clean-machine and negative-path tests remain acceptance gates before a production-ready release. See [validation](VALIDATION.md).
 
 ## Validated upstream design
 

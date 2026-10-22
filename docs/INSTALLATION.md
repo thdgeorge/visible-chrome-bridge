@@ -36,10 +36,10 @@ The installer checks prerequisites and downloads verified payloads. It does not 
 ```powershell
 git clone https://github.com/thdgeorge/visible-chrome-bridge.git
 Set-Location visible-chrome-bridge
-.\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0
+.\Install-Windows.ps1
 ```
 
-These exact upstream versions reproduce the **tested beta baseline**. Omitting both version flags on a **fresh install** selects the **current stable upstream versions** instead; those may include security/compatibility fixes but are not automatically covered by the earlier QA. See [version-selection guidance](UPDATES.md#tested-beta-baseline-versus-upstream-latest). Re-running the installer preserves the existing payload; use `Update-Bridge.ps1` to change installed dependency versions.
+On a **fresh install**, the command without version flags selects the **latest stable upstream releases**. Their compatibility is **not automatically proven** by the initial real-PC QA, which used tunnel-client `0.0.17` and Chrome DevTools MCP `1.11.0`. To reproduce that exact tested pair, use `.\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0` instead. Review [version-selection guidance](UPDATES.md#tested-versions-versus-upstream-latest) and current upstream security updates. Re-running the installer preserves the installed dependency versions; use `Update-Bridge.ps1` to change them.
 
 **No Git installed?** On the [repository Code page](https://github.com/thdgeorge/visible-chrome-bridge), select **Code → Download ZIP** for the current `main` source, or choose a versioned `Source code (zip)` archive from [GitHub Releases](https://github.com/thdgeorge/visible-chrome-bridge/releases). Extract it, open PowerShell **inside the extracted project directory containing `Install-Windows.ps1`**, and run the same installer command. Git is not required. Review script origin before execution. If Windows marks the archive as downloaded, use Properties > Unblock before extraction only after verifying it. Follow your organization's execution policy; no permanent policy change is required.
 
