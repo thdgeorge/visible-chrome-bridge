@@ -41,12 +41,60 @@ screenshots or browser data were captured.
 
 Follow [CONTRIBUTING.md](../CONTRIBUTING.md#manual-acceptance-checklist) before a
 stable release. Still unverified: Windows 10, clean Windows 11 without elevated
-privileges, fresh interactive credential installation, actual logon startup and
-scheduled-task behavior, authentication against a new personal OpenAI tunnel,
+privileges, clean-machine interactive credential installation, actual logon startup and
+scheduled-task behavior, end-to-end use of a new personal OpenAI tunnel,
 Chrome consent and decline/reconnect paths, ChatGPT discovery and real tool use,
 and upgrades/rollback across different upstream versions.
 
 No stable release has been published, and no production readiness is claimed.
+
+## First real-PC manual QA: 2026-10-22
+
+In progress against wrapper revision `d21219a` plus the fixes described below. Scope: a separate QA tunnel,
+the default per-user private data directory, existing running Chrome, and
+read-only browser calls. Startup registration and automatic updates are excluded.
+No tunnel identifiers, credentials, account details, or browser contents are
+included in this record.
+
+Environment: Windows build `10.0.26200.0`, PowerShell `7.6.6`, Node.js `24.18.0`,
+Chrome `155.0.8059.82`. The validation shell is not elevated.
+
+| Check | Actual result |
+| --- | --- |
+| Feature branch and checkout | PASS: intended feature branch; clean before QA. |
+| Prerequisites | PASS: installed Node/npm and Chrome detected by the real prerequisite checker. |
+| Default data directory | PASS precondition: absent before installation; no existing bridge instance to overwrite. |
+| Legacy baseline | PASS: configuration/credential/runner binary hashes and startup task definition baselined privately; no values copied into source. |
+| Legacy browser integration before QA | PASS: existing plugin completed a read-only `list_pages` call; returned page details were suppressed. |
+| Existing Chrome | PASS precondition: browser was already running; no explicit separate profile on its main process. |
+| QA tunnel | PASS separation: newly stored tunnel differs from legacy profile identifiers (comparison stayed in memory). User created a separate runtime key; a read-only service metadata request confirmed a workspace association exists. |
+| Real installation and credential storage | Initial attempt FAILED before credential entry: Windows PowerShell inherited an incompatible module path and could not load its security module. A controlled probe passed with `PSModulePath` absent from the child environment. Retry PASS: user completed both hidden prompts; pinned dependencies installed without elevation, DPAPI storage verified, root ACL protected with only current user and SYSTEM rules. |
+| Worker and local runtime | Initial start FAILED: official client rejected `warn` logging without an explicit format. Fixed with `--log.format struct-text`; restart PASS: running, healthy, and ready, with browser verification still false. Encrypted credentials unchanged by application repair. |
+| New tunnel authentication | PASS for authenticated read: HTTPS GET of this tunnel's metadata returned 200 with the new locally decrypted runtime key. Response contents were suppressed. End-to-end use permission and intended workspace access remain unproven until discovery/tool use. |
+| Chrome consent and new ChatGPT tool discovery | PENDING: private connection creation and user interaction requested. |
+| Read-only new browser operation | PENDING: no new integration call performed. |
+| Both integrations operational together | PARTIAL: legacy read-only tool still succeeds while the new runtime runs; new integration browser call remains pending. All seven baseline file hashes and the legacy scheduled-task definition match; original tunnel and Chrome PIDs remain alive. |
+| Owned stop and unrelated-process preservation | PASS before new browser use: graceful stop recorded `Stopped`; all seven captured owned processes exited. Original Chrome and legacy tunnel stayed alive, and the legacy read-only tool still succeeded. Explicit restart returned running/healthy/ready. Repeat after the new browser call remains pending. |
+| Real process credential exposure | PASS: neither locally decrypted credential appeared in the seven owned processes' command lines; values and command lines were suppressed. Chrome was outside the owned process tree. MCP environment stripping is covered by the offline shim test, not a live memory inspection. |
+| Startup/update registration | PASS: no registration for the new default root before or after installation/start; manual update policy only. |
+
+Pending checks are not passes or evidence of a failure. This first-PC run does
+not cover clean-machine installation, Windows 10, credential rotation, scheduled
+startup, unattended updates, or upgrades across upstream versions.
+
+The failed first installation left an empty directory before writing its owner
+marker. The installer now removes only that newly created empty directory when
+initial storage setup fails; nonempty directories are retained. A regression
+scenario checks both failure/retry and data preservation.
+
+The startup failure exposed a smoke-test gap: its synthetic log-file option
+implicitly selected a log format that the real worker did not set. The smoke
+test now uses the worker's logging arguments without a log file and supplies
+the synthetic tunnel identifier through the same environment mechanism. The
+fake lifecycle client also rejects the invalid logging combination. After these
+changes, all 17 offline scenarios passed under PowerShell 5.1 and 7.6.6, and the
+official-client loopback smoke test passed under both shells. No real child
+output was written to a log or included in this record.
 
 ## Repeat the checks
 

@@ -259,6 +259,35 @@ try {
             } finally { foreach ($name in $originals.Keys) { Set-Item ('Function:\'+$name) $originals[$name] } }
         } $root $node
     }
+    Test-Case 'Failed initial private storage setup removes only its new empty directory' {
+        $root=Join-Path $testRoot 'failed first installation'
+        & $bridgeModule {
+            param($r)
+            $pre=(Get-Item Function:\Get-BridgePrerequisites).ScriptBlock
+            $acl=(Get-Item Function:\Set-BridgePrivateAcl).ScriptBlock
+            try {
+                Set-Item Function:\Get-BridgePrerequisites { return [pscustomobject]@{} }
+                Set-Item Function:\Set-BridgePrivateAcl { param($Root) throw 'synthetic security module failure' }
+                $failed=$false
+                try { [void](Install-Bridge -Root $r) } catch { $failed=$true }
+                if (-not $failed -or (Test-Path -LiteralPath $r)) { throw 'Empty failed installation root was retained' }
+                # A second attempt is not blocked by an unowned directory.
+                $failed=$false
+                try { [void](Install-Bridge -Root $r) } catch { $failed=$true }
+                if (-not $failed -or (Test-Path -LiteralPath $r)) { throw 'Retry left an unowned root' }
+                Set-Item Function:\Set-BridgePrivateAcl {
+                    param($Root)
+                    [IO.File]::WriteAllText((Join-Path $Root 'preserve.txt'),'fixture data')
+                    throw 'synthetic setup failure after unrelated data appeared'
+                }
+                try { [void](Install-Bridge -Root $r) } catch { }
+                if (-not (Test-Path -LiteralPath (Join-Path $r 'preserve.txt'))) { throw 'Failure cleanup removed nonempty data' }
+            } finally {
+                Set-Item Function:\Get-BridgePrerequisites $pre
+                Set-Item Function:\Set-BridgePrivateAcl $acl
+            }
+        } $root
+    }
     Test-Case 'Missing dependencies give an actionable error before installation mutation' {
         & $bridgeModule {
             $saved=(Get-Item Function:\Get-Command -ErrorAction SilentlyContinue)

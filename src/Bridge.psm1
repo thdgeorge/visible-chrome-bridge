@@ -302,7 +302,7 @@ function Invoke-BridgeWorker {
         } else { $stop = [Threading.EventWaitHandle]::new($false, [Threading.EventResetMode]::ManualReset, $eventName, [ref]$created, $security) }
         $healthFile = Join-Path $Root 'health.url'
         if (Test-Path -LiteralPath $healthFile) { Remove-Item -LiteralPath $healthFile -Force }
-        $arguments = @('run','--control-plane.api-key','env:CONTROL_PLANE_API_KEY','--mcp.command',('command=' + $command + ',channel=main'), '--health.listen-addr','127.0.0.1:0','--health.url-file',$healthFile,'--log.level','warn','--admin-ui.log-buffer-events','1')
+        $arguments = @('run','--control-plane.api-key','env:CONTROL_PLANE_API_KEY','--mcp.command',('command=' + $command + ',channel=main'), '--health.listen-addr','127.0.0.1:0','--health.url-file',$healthFile,'--log.level','warn','--log.format','struct-text','--admin-ui.log-buffer-events','1')
         $job = [VisibleChromeBridge.NativeJob]::new($exe, [string[]]$arguments, $payload, $environment)
         $environment.Clear()
         $current = Get-Process -Id $PID
@@ -348,7 +348,10 @@ function Start-Bridge {
             Start-Sleep -Milliseconds 300
             $status = Get-BridgeStatus $Root
             if ($status.RuntimeReady) { return $status }
-            if ($process.HasExited) { throw 'The worker could not start. Check execution policy, DPAPI user context, installed files, and outcome.json. No private logs were saved.' }
+            if ($process.HasExited) {
+                if ($status.LastOutcome -eq 'UpstreamExited') { throw 'The official tunnel client exited during startup. Check its configuration, runtime key permissions, and network access. No private logs were saved.' }
+                throw 'The worker could not start. Check execution policy, DPAPI user context, installed files, and outcome.json. No private logs were saved.'
+            }
         } while ([DateTime]::UtcNow -lt $deadline)
         Write-Warning 'The worker is running but runtime readiness is pending. Check status again; readiness never proves Chrome consent or ChatGPT access.'
         return $status
@@ -415,7 +418,7 @@ function Assert-BridgePayloadCompatible {
             $text=$stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult()
             if ($process.ExitCode -ne 0 -or $text -notmatch $probe.Expected) { throw 'Upstream CLI compatibility check failed. The current version was retained.' }
             if ($probe.Exe -eq $exe -and $probe.Args[0] -eq 'run') {
-                foreach ($flag in @('--health.listen-addr','--health.url-file','--control-plane.api-key','--admin-ui.log-buffer-events','--log.level')) {
+                foreach ($flag in @('--health.listen-addr','--health.url-file','--control-plane.api-key','--admin-ui.log-buffer-events','--log.level','--log.format')) {
                     if (-not $text.Contains($flag)) { throw 'The selected tunnel client is missing a required CLI option.' }
                 }
             }
@@ -477,8 +480,19 @@ function Install-Bridge {
             if (Test-BridgeLifetime $Root) { throw 'Stop this bridge before repairing its installation. Existing Chrome and other bridges are never stopped by installation.' }
         } else {
             [void][IO.Directory]::CreateDirectory($Root)
-            Set-BridgePrivateAcl $Root
-            Write-BridgeJson (Join-Path $Root 'owner.json') @{Product=$script:Marker;UserSid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value}
+            try {
+                Set-BridgePrivateAcl $Root
+                Write-BridgeJson (Join-Path $Root 'owner.json') @{Product=$script:Marker;UserSid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value}
+            } catch {
+                # A setup failure before the ownership marker must not strand an
+                # empty, unowned root that subsequent installation refuses to use.
+                # Non-recursive deletion refuses any directory containing data.
+                try {
+                    Assert-BridgePath $Root
+                    if ([IO.Path]::GetFullPath($Root) -eq $Root) { [IO.Directory]::Delete($Root, $false) }
+                } catch { } # Preserve nonempty/changed paths and the original error.
+                throw
+            }
         }
         $statePath = Join-Path $Root 'state.json'
         $state = if (Test-Path -LiteralPath $statePath) { Get-BridgeState $Root } else { $null }

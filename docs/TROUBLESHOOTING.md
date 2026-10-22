@@ -15,9 +15,11 @@ Use the same `-DataRoot` and Windows account as installation. Do not publish cre
 | Node or npm missing | Run `node --version` and `npm --version` in a fresh shell. Install supported Node LTS yourself, then retry. |
 | Chrome missing/unsupported | Verify Chrome version and standard installation location. Upgrade through your approved channel. |
 | Script execution blocked | Review download origin and PowerShell/application control policy. Do not permanently weaken policy. |
+| `Microsoft.PowerShell.Security` cannot load / duplicate `ObjectSecurity` type data | A Windows PowerShell child may have inherited PowerShell 7's module search path. Open a fresh Windows PowerShell from the Start menu, or run the installer directly in PowerShell 7. If launching a child programmatically, remove `PSModulePath` from that child's environment only. Do not edit global module paths or disable security policy. |
 | Installation missing | Check account and `-DataRoot`. Default storage is per-user. |
 | Credential decryption fails | Run as the original user. Do not copy DPAPI files between accounts; install your own credentials. |
 | Worker absent or start fails | Inspect safe status, dependency paths, and application control policy; resolve the stated error and retry. |
+| Official client exits immediately / `UpstreamExited` | Check runtime configuration and service permissions. Tunnel-client 0.0.17 requires an explicit log format with `warn` logging; this wrapper supplies `--log.format struct-text` and discards child output. Repair an older installed application from the corrected checkout while stopped. |
 | Worker runs but health unavailable | Allow brief initialization and recheck. Verify dependencies execute and network access works. |
 | Local health succeeds but tunnel fails | Verify key validity, permissions, association, and outbound HTTPS. Health alone does not prove authorization. |
 | Tunnel absent in ChatGPT | Revisit [setup](CHATGPT-SETUP.md) account and association checks. |

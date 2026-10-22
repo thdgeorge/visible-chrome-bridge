@@ -11,8 +11,15 @@ public static class FakeTunnel
     public static void Main(string[] args)
     {
         string healthFile = null;
+        string logLevel = "info", logFormat = null;
         for (int i = 0; i < args.Length - 1; i++)
+        {
             if (args[i] == "--health.url-file") healthFile = args[i + 1];
+            if (args[i] == "--log.level") logLevel = args[i + 1];
+            if (args[i] == "--log.format") logFormat = args[i + 1];
+        }
+        // Match upstream's validation without a log file implicitly setting format.
+        if (logLevel != "info" && logFormat != "struct-text" && logFormat != "json") Environment.Exit(2);
         if (healthFile == null) Environment.Exit(2);
         TcpListener listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();

@@ -24,8 +24,9 @@ try {
     $url=[IO.File]::ReadAllText((Join-Path $root 'control.url'))
     if ($url -notmatch '^http://127\.0\.0\.1:[0-9]+$') { throw 'Test control must be loopback only.' }
     $environment['CONTROL_PLANE_API_KEY']='synthetic-offline-test-key-never-real'
+    $environment['CONTROL_PLANE_TUNNEL_ID']='tunnel_00000000000000000000000000000000'
     $command=ConvertTo-BridgeCommand @($pre.NodePath,(Join-Path $repo 'src\mcp-launcher.cjs'),(Join-Path $root 'offline-mcp.cjs'))
-    $arguments=@('run','--control-plane.base-url',$url,'--control-plane.api-key','env:CONTROL_PLANE_API_KEY','--control-plane.tunnel-id','tunnel_00000000000000000000000000000000','--mcp.command',('command='+$command+',channel=main'),'--health.listen-addr','127.0.0.1:0','--health.url-file',(Join-Path $root 'health.url'),'--log.level','warn','--log.file',(Join-Path $root 'synthetic.log'),'--admin-ui.log-buffer-events','1')
+    $arguments=@('run','--control-plane.base-url',$url,'--control-plane.api-key','env:CONTROL_PLANE_API_KEY','--mcp.command',('command='+$command+',channel=main'),'--health.listen-addr','127.0.0.1:0','--health.url-file',(Join-Path $root 'health.url'),'--log.level','warn','--log.format','struct-text','--admin-ui.log-buffer-events','1')
     $tunnel=[VisibleChromeBridge.NativeJob]::new($exe,[string[]]$arguments,$root,$environment)
     $deadline=[DateTime]::UtcNow.AddSeconds(20)
     do {
@@ -34,8 +35,6 @@ try {
         $poll=Test-Path -LiteralPath (Join-Path $root 'response-observed')
     } while ((-not $stdio -or -not $poll) -and $tunnel.IsRunning -and [DateTime]::UtcNow -lt $deadline)
     if (-not $stdio -or -not $poll) {
-        $log=Join-Path $root 'synthetic.log'
-        if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log -Tail 4 | ForEach-Object { Write-Verbose ($_ -replace 'tunnel_[a-zA-Z0-9_-]+','[synthetic-id]' -replace 'synthetic-offline-test-key-never-real','[synthetic-key]') } }
         throw ('Official tunnel fixture incomplete: stdio='+$stdio+' poll='+$poll+' running='+$tunnel.IsRunning+' healthFile='+(Test-Path -LiteralPath (Join-Path $root 'health.url')))
     }
     $evidence=Read-BridgeJson (Join-Path $root 'stdio-observed.json')
