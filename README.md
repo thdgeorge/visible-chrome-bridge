@@ -1,28 +1,64 @@
 # Visible Chrome Bridge
 
-> **Work in progress — no installer or stable release yet.**
+> **Preview: real Windows installation and Chrome/ChatGPT acceptance remain release gates. This is not yet validated for production use.**
 
-A community-maintained Windows setup project for connecting ChatGPT to your **existing Google Chrome session** through the official [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) and [OpenAI Secure MCP Tunnel client](https://github.com/openai/tunnel-client).
+A per-user Windows bridge from ChatGPT to your already-running Google Chrome. It connects official [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) to the official [OpenAI tunnel client](https://github.com/openai/tunnel-client) over stdio, with Secure MCP Tunnels carrying requests over outbound HTTPS.
 
-## Design goals
+## Start here
 
-- Reuse the user's running Chrome and existing profile with `--autoConnect` (Chrome 144+); do not create a separate Chrome profile.
-- Each developer uses their **own** Secure MCP Tunnel, runtime credentials, and ChatGPT custom MCP connection.
-- Offer repeatable installation, health checks, controlled version updates, and rollback.
-- Never store or commit secrets, session data, browser logs, or internal company files.
+You need Windows 10/11 x64, Windows PowerShell 5.1 or PowerShell 7, supported Node.js LTS with npm, and Chrome 144+. Platform tunnel permissions and ChatGPT custom MCP permissions are separate; check [account eligibility](docs/CHATGPT-SETUP.md) first.
 
-## Status
+1. Create your personal tunnel and restricted runtime key using [ChatGPT setup](docs/CHATGPT-SETUP.md).
+2. Clone this repository or extract a reviewed archive. Open PowerShell in its directory:
 
-The initial implementation is being developed and tested. **Do not treat this repository as an installable production tool yet.** Setup and documentation will be added after Windows validation.
+   ```powershell
+   .\Install-Windows.ps1
+   ```
 
-## References
+3. Enter your tunnel ID and key at the secure local prompts. Installation does not start the bridge. [Prepare Chrome](docs/INSTALLATION.md#prepare-chrome), then run:
 
-- [Chrome DevTools MCP: advanced usage](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/advanced-usage.md)
-- [OpenAI tunnel-client](https://github.com/openai/tunnel-client)
-- [Connecting custom MCP servers in ChatGPT](https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt)
+   ```powershell
+   .\Start-Bridge.ps1
+   .\Get-BridgeStatus.ps1
+   ```
+
+4. Add your private ChatGPT custom MCP connection, review tools, and make a harmless browser call. Chrome consent and a successful call are required to verify the complete connection.
+
+The bridge uses `--autoConnect`. It never launches or restarts Chrome, creates a browser profile, or configures a Chrome debugging port. Read the [browser access boundary](docs/SECURITY.md#browser-and-tool-access) before use.
+
+## Daily commands
+
+Run these from the checkout or installed `app` directory under `%LOCALAPPDATA%\VisibleChromeBridge`:
+
+```powershell
+.\Get-BridgeStatus.ps1
+.\Check-Updates.ps1
+.\Stop-Bridge.ps1
+.\Update-Bridge.ps1
+.\Start-Bridge.ps1
+```
+
+Updates and rollback require a stopped bridge and never restart it automatically. Default policy is `Manual`; optional scheduled checking and explicit unattended opt-in are explained in [updates](docs/UPDATES.md).
+
+Configuration, DPAPI-encrypted credentials, installed payloads, and bounded lifecycle state live outside the checkout. Each developer owns their own tunnel, credentials, bridge, ChatGPT connection, and browser session. Never publish shared access to a personal browser.
+
+## Documentation
+
+- [Installation, prerequisites, startup, and removal](docs/INSTALLATION.md)
+- [ChatGPT, permissions, and first tool call](docs/CHATGPT-SETUP.md)
+- [Architecture and validation boundaries](docs/ARCHITECTURE.md)
+- [Updates, rollback, and tool review](docs/UPDATES.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Security](docs/SECURITY.md)
+- [Contributing and manual acceptance checklist](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Third-party notices](THIRD-PARTY-NOTICES.md)
+- [Executed checks and remaining acceptance gates](docs/VALIDATION.md)
+
+Run isolated PowerShell checks with `.\tests\Run-Tests.ps1`; no Pester installation is needed. Automated checks cannot prove real tunnel authentication, Chrome consent, or a working ChatGPT tool call.
 
 This project is independent and **not affiliated with or endorsed by OpenAI or Google**.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+The wrapper is [MIT licensed](LICENSE). Upstream software retains its own licenses; see [third-party notices](THIRD-PARTY-NOTICES.md).

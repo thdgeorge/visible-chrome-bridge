@@ -1,0 +1,49 @@
+name: Windows validation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [powershell, pwsh]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Offline Windows safety and lifecycle checks
+        shell: ${{ matrix.shell }}
+        run: .\tests\Run-Tests.ps1
+      - name: JavaScript syntax and whitespace
+        shell: pwsh
+        run: |
+          node --check src/mcp-launcher.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node --check src/validate-lock.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          git diff --check
+  source-package:
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package tracked source only
+        shell: pwsh
+        run: |
+          git archive --format=zip --output=visible-chrome-bridge-preview.zip HEAD
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $hash = (Get-FileHash -LiteralPath visible-chrome-bridge-preview.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  visible-chrome-bridge-preview.zip" | Set-Content -LiteralPath SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-preview
+          path: |
+            visible-chrome-bridge-preview.zip
+            SHA256SUMS.txt
+          retention-days: 7
