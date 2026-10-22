@@ -15,9 +15,32 @@ Ask your Platform organization owner/RBAC administrator for the appropriate role
 
 The current [ChatGPT Help Center](https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt) describes custom MCP support on ChatGPT web for Business and Enterprise/Edu. Business creation is for admins/owners; Enterprise/Edu can authorize selected developers through RBAC. Verify workspace policy first. Do not assume a personal paid plan includes this capability.
 
+## Recommended names and descriptions
+
+These are **copy-and-customize suggestions**, not required literal strings. Replace `<YOUR_NAME>` with your own name (for example, `George`), not the angle brackets. If several devices or environments need separate connections, append a suffix such as ` - Work` or ` - QA`.
+
+**OpenAI Platform — Create tunnel**
+
+- **Name:** `Visible Chrome Bridge - <YOUR_NAME>`
+- **Description** (if the field is shown):
+  > Private tunnel from ChatGPT to <YOUR_NAME>'s existing local Google Chrome through Chrome DevTools MCP.
+
+**ChatGPT — Add custom MCP server**
+
+- **Name:** `Visible Chrome - <YOUR_NAME>`
+- **Description** (optional):
+  > Connects ChatGPT to my existing local Google Chrome via Chrome DevTools MCP and a private Secure MCP Tunnel. Can inspect and interact with open tabs after Chrome consent. Requires my local bridge to be running.
+- **Connection:** `Tunnel` — select **your own** tunnel created above.
+- **Server authentication:** `None` for this bridge's stdio MCP server if the form asks; the restricted **tunnel runtime API key stays on your PC**, entered only in the secure installer prompt.
+- **Sharing:** keep the custom plugin **private** to your account; never publish a personal browser connection to an entire workspace.
+
+**Example for George:** Tunnel `Visible Chrome Bridge - George`; plugin `Visible Chrome - George`. For test use, `Visible Chrome Bridge - George - QA` and `Visible Chrome - George - QA`.
+
+Names and descriptions are for identifying resources, **not** for authorizing or linking them. ChatGPT must select the same `tunnel_id` that the local installer uses, with the correct Platform-organization and ChatGPT-workspace association. No tunnel ID or runtime key belongs in a public description.
+
 ## Create your personal tunnel
 
-1. Open [Platform tunnel settings](https://platform.openai.com/settings/organization/tunnels) in the intended organization and create a separate tunnel for this bridge.
+1. Open [Platform tunnel settings](https://platform.openai.com/settings/organization/tunnels) in the intended organization and create a separate tunnel for this bridge. Use the [recommended name and optional description](#recommended-names-and-descriptions).
 2. Confirm workspace association and obtain its tunnel ID privately.
 3. Create a restricted runtime API key with the runtime permissions above. Keep administration credentials separate.
 4. Follow [installation](INSTALLATION.md), entering values only at its local secure prompts. Keep the bridge running during discovery and use.
@@ -29,9 +52,9 @@ Do not reuse another developer's tunnel, key, installation, browser, or ChatGPT 
 In the current ChatGPT Plugins experience:
 
 1. Open **Plugins**, select **+**, then **Add custom MCP server**.
-2. Choose a personal name, such as **My Visible Chrome**.
+2. Use the [recommended plugin name and optional description](#recommended-names-and-descriptions) (or customize them consistently).
 3. Under **Connection**, choose **Tunnel** and select your tunnel or enter its ID.
-4. Configure server authentication as required. This wrapper's stdio MCP server does not add an OAuth service. Do not paste the runtime key into a URL or description.
+4. For this stdio MCP bridge, choose **None** for server authentication if asked. Tunnel runtime authentication is separate and handled by the local bridge. Do not paste its API key into a URL or description.
 5. Review the risk notice and discovered tools, then create the plugin.
 
 The current flow does not require enabling Developer Mode first. Legacy interfaces may expose custom app creation and **Scan Tools**; consult the official Help Center. Do not publish your browser connection to the workspace or public plugin directory.
