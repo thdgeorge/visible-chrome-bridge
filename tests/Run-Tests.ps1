@@ -192,6 +192,13 @@ try {
         Write-BridgeJson (Join-Path $root 'state.json') @{Schema=1;NodePath=$node;Current=@{Directory='payloads\fixture';TunnelVersion='0.0.0';McpVersion='0.0.0';TunnelRelativePath='fake-tunnel.exe';McpRelativePath='unused.cjs'};Previous=$null;PreviousNodePath=$null;StartAtLogon=$false;UpdatePolicy='Manual'}
         try {
             $status=Invoke-BridgeLocked $root { Start-Bridge $root }
+            # Start may return a documented pending state on cold Windows runners.
+            # Bound eventual readiness separately from its initial startup window.
+            $readyDeadline=[DateTime]::UtcNow.AddSeconds(90)
+            while ($status.Running -and -not $status.RuntimeReady -and [DateTime]::UtcNow -lt $readyDeadline) {
+                Start-Sleep -Milliseconds 250
+                $status=Get-BridgeStatus $root
+            }
             Assert-True ($status.Running -and $status.RuntimeReady -and -not $status.BrowserVerified)
             $worker=Get-BridgeWorkerState $root
             [void](Invoke-BridgeLocked $root { Start-Bridge $root })
@@ -203,7 +210,12 @@ try {
             Invoke-BridgeLocked $root { Stop-Bridge $root }
             Assert-True (-not (Test-BridgeLifetime $root))
             Assert-True (-not (Get-Process -Id $started.pid -ErrorAction SilentlyContinue))
-        } finally { if (Test-BridgeLifetime $root) { Stop-Bridge $root } }
+        } finally {
+            if (Test-BridgeLifetime $root) {
+                if (Get-BridgeWorkerState $root) { Stop-Bridge $root }
+                else { Write-Warning 'Fixture worker ownership is still pending; keep its files intact.' }
+            }
+        }
     }
     Test-Case 'Installer idempotency and failed update preserve credentials and active pointer (offline mocks)' {
         $root=New-TestOwnedRoot 'transaction fixture'
@@ -264,8 +276,13 @@ finally {
     $resolved=[IO.Path]::GetFullPath($testRoot)
     if ($resolved.StartsWith($tempBase+'\',[StringComparison]::OrdinalIgnoreCase) -and (Split-Path $resolved -Leaf) -like 'VCB tests with spaces*') {
         $links=@(Get-ChildItem -LiteralPath $resolved -Recurse -Force | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint })
-        if ($links.Count -eq 0) { Remove-Item -LiteralPath $resolved -Recurse -Force }
-        else { Write-Warning 'Fixture contains a link; guarded cleanup skipped.' }
+        $activeFixture=$false
+        foreach ($lockFile in Get-ChildItem -LiteralPath $resolved -Filter 'worker.lock' -Recurse -File) {
+            try { $handle=[IO.File]::Open($lockFile.FullName,'Open','ReadWrite','None'); $handle.Dispose() }
+            catch { $activeFixture=$true }
+        }
+        if ($links.Count -eq 0 -and -not $activeFixture) { Remove-Item -LiteralPath $resolved -Recurse -Force }
+        else { Write-Warning 'Fixture contains a link or active worker; guarded cleanup skipped.' }
     }
 }
 Write-Output ('Tests: '+$script:passed+' passed, '+$script:failed+' failed; shell '+$PSVersionTable.PSVersion)
