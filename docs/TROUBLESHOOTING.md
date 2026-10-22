@@ -8,6 +8,8 @@ Start with safe status output:
 
 Use the same `-DataRoot` and Windows account as installation. Do not publish credentials, process environments, private configuration, browser screenshots, or unreviewed logs. The wrapper persists bounded lifecycle outcomes instead of raw child output.
 
+**Status meaning:** `Running=True`, `Healthy=True`, `RuntimeReady=True` mean the **local bridge** is available, not that Chrome consent or ChatGPT succeeded. **`BrowserVerified=False` is always expected**, even after a successful browser call. See [status interpretation](INSTALLATION.md#verify-installation-and-first-browser-call).
+
 ## Diagnose one stage at a time
 
 | Symptom | Check and recovery |
@@ -22,8 +24,8 @@ Use the same `-DataRoot` and Windows account as installation. Do not publish cre
 | Official client exits immediately / `UpstreamExited` | Check runtime configuration and service permissions. Tunnel-client 0.0.17 requires an explicit log format with `warn` logging; this wrapper supplies `--log.format struct-text` and discards child output. Repair an older installed application from the corrected checkout while stopped. |
 | Worker runs but health unavailable | Allow brief initialization and recheck. Verify dependencies execute and network access works. |
 | Local health succeeds but tunnel fails | Verify key validity, permissions, association, and outbound HTTPS. Health alone does not prove authorization. |
-| Tunnel absent in ChatGPT | Revisit [setup](CHATGPT-SETUP.md) account and association checks. |
-| Tools found but Chrome inaccessible | Check [Chrome preparation](INSTALLATION.md#prepare-chrome), retry a harmless call, and handle consent. |
+| Tunnel absent in ChatGPT | Confirm **ChatGPT workspace** association (not just the Platform organization), `Tunnels Read + Use`, and permission to create a private MCP plugin; see [setup](CHATGPT-SETUP.md#create-your-personal-tunnel). |
+| Tools found but Chrome inaccessible | Open Chrome 144+ yourself, enable `chrome://inspect/#remote-debugging`, check Chrome's **default profile**, and accept the expected consent dialog. Retry the [read-only browser test](CHATGPT-SETUP.md#prove-the-complete-path). |
 | Unexpected browser pages | Recheck Chrome's selected default profile before further actions. There is no arbitrary profile selector. |
 | Update/rollback blocked | Finish automation and explicitly stop the bridge before retrying. |
 | Download/integrity check fails | Check official release metadata and network/proxy interference. Keep the installed payload; never disable verification. |

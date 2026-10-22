@@ -5,8 +5,7 @@ revision and do not certify future dependency releases or a production rollout.
 
 ## Executed locally
 
-- Windows PowerShell 5.1 and PowerShell 7.6.6: `tests/Run-Tests.ps1`, 16 scenarios
-  passed in each shell. Node.js 24.18.0 was used.
+- **Original** Windows PowerShell 5.1 and PowerShell 7.6.6 baseline: `tests/Run-Tests.ps1`, **16 scenarios** passed in each shell (Node.js 24.18.0). **After first real-PC QA fixes**, the revised implementation passed **17 scenarios in each shell**; these counts describe different revisions. See final QA notes below.
 - Native argument round trips include spaces, apostrophes, quotes, empty strings,
   trailing backslashes, and shell metacharacters without invoking a shell.
 - Actual Windows DPAPI encryption/decryption and protected directory ACLs.

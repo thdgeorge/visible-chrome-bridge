@@ -39,4 +39,4 @@ processes. Loopback is not an authentication boundary against local users.
 
 Do not open public issues containing credentials, browser data, or exploit details against an active personal installation. Use GitHub Security reporting if available; otherwise contact the maintainer privately to arrange a secure report. If no private channel exists, request one in an issue without sensitive details. Revoke exposed keys promptly.
 
-This preview has not completed Windows 10, clean Windows 11, real tunnel, and Chrome/ChatGPT acceptance. Automated tests are not a security audit or a production-readiness claim.
+This beta completed a **limited real-PC QA** with a separate tunnel, Chrome consent, user-confirmed read-only ChatGPT tool use, and isolated stop/coexistence. **Clean Windows 10/11 installs, negative permission and consent cases, logon startup, real upgrades/rollback, and broader release acceptance remain outstanding.** Automated tests and one happy-path QA run are not a security audit or a production-readiness claim. See [validation](VALIDATION.md).

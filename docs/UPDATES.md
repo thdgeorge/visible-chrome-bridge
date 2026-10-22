@@ -12,6 +12,16 @@ Startup uses pinned, installed dependencies. It does not resolve `@latest`, down
 
 There is no reliable detector for every active ChatGPT/browser session. The running worker therefore blocks update and rollback under every policy. The updater never stops a running bridge and never restarts it after changing a payload. Unattended mode is not permission to interrupt work.
 
+## Tested beta baseline versus upstream latest
+
+The first real-PC QA on 2026-10-22 used **tunnel-client 0.0.17** and **chrome-devtools-mcp 1.11.0**. To reproduce that exact beta dependency combination on a **fresh** machine, use:
+
+```powershell
+.\Install-Windows.ps1 -TunnelVersion 0.0.17 -McpVersion 1.11.0
+```
+
+Without version flags on a **fresh installation**, the installer selects the then-current **stable upstream releases**. These may include important fixes but **were not automatically validated by the old QA**. Check upstream release notes, requirements and security advisories; a previously tested version is not necessarily safer. Startup stays pinned to installed versions. Re-running the installer does not change installed dependency versions; while stopped, use the updater to change them. The **GitHub wrapper version tag** and **upstream dependency versions** are different concepts.
+
 ## Check and update manually
 
 ```powershell
