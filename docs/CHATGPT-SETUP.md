@@ -17,26 +17,26 @@ The current [ChatGPT Help Center](https://help.openai.com/en/articles/12584461-c
 
 ## Recommended names and descriptions
 
-These are **copy-and-customize suggestions**, not required literal strings. Replace `<YOUR_NAME>` with your own name (for example, `George`), not the angle brackets. If several devices or environments need separate connections, append a suffix such as ` - Work` or ` - QA`.
+These are **suggested copy-and-paste labels** for every developer. You do not need to add your personal name. The tunnel ID and restricted runtime API key remain **individual**, even when display names are identical.
 
 **OpenAI Platform — Create tunnel**
 
-- **Name:** `Visible Chrome Bridge - <YOUR_NAME>`
-- **Description** (if the field is shown):
-  > Private tunnel from ChatGPT to my existing local Google Chrome through Chrome DevTools MCP.
+- **Name:** `Visible Chrome Bridge`
+- **Description** (if shown):
+  > Private tunnel connecting ChatGPT to an existing local Google Chrome session through Chrome DevTools MCP.
 
 **ChatGPT — Add custom MCP server**
 
-- **Name:** `Visible Chrome - <YOUR_NAME>`
+- **Name:** `Visible Chrome`
 - **Description** (optional):
-  > Connects ChatGPT to my existing local Google Chrome via Chrome DevTools MCP and a private Secure MCP Tunnel. Can inspect and interact with open tabs after Chrome consent. Requires my local bridge to be running.
+  > Connects ChatGPT to the existing local Google Chrome via Chrome DevTools MCP and a private Secure MCP Tunnel. Can inspect and interact with open tabs after Chrome consent. Requires the local bridge to be running.
 - **Connection:** `Tunnel` — select **your own** tunnel created above.
-- **Server authentication:** `None` for this bridge's stdio MCP server if the form asks; the restricted **tunnel runtime API key stays on your PC**, entered only in the secure installer prompt.
-- **Sharing:** keep the custom plugin **private** to your account; never publish a personal browser connection to an entire workspace.
+- **Server authentication:** `None` for this bridge's stdio MCP server, if asked. The restricted **tunnel runtime API key stays on the PC**, entered only in the installer's secure local prompt.
+- **Sharing:** keep the custom plugin **private**; never publish personal browser access to a whole workspace.
 
-**Example for George:** Tunnel `Visible Chrome Bridge - George`; plugin `Visible Chrome - George`. For test use, `Visible Chrome Bridge - George - QA` and `Visible Chrome - George - QA`.
+**For isolated manual QA (optional):** use `Visible Chrome Bridge QA` for the tunnel and `Visible Chrome QA` for the plugin. Use unique test credentials and the appropriate isolated data directory.
 
-Names and descriptions are for identifying resources, **not** for authorizing or linking them. ChatGPT must select the same `tunnel_id` that the local installer uses, with the correct Platform-organization and ChatGPT-workspace association. No tunnel ID or runtime key belongs in a public description.
+Display names are labels only; they do not connect or authorize anything. ChatGPT must select the same `tunnel_id` configured in the local installer with the correct Platform organization and ChatGPT workspace association. If a shared organization has many identical tunnel names or enforces unique labels, use a short, recognizable optional suffix (for example, a device or environment name). Do not put tunnel IDs, runtime keys, or other secrets in names or public descriptions.
 
 ## Create your personal tunnel
 
