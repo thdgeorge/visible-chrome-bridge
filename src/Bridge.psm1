@@ -543,6 +543,10 @@ function Update-Bridge {
         $node=$state.NodePath; $state.NodePath=$state.PreviousNodePath; $state.PreviousNodePath=$node
     } else {
         $prerequisites = Get-BridgePrerequisites
+        # No version flags: update both to latest stable. With only one explicit
+        # version, keep the other dependency pinned to the installed version.
+        if ($TunnelVersion -and -not $McpVersion) { $McpVersion = $state.Current.McpVersion }
+        elseif ($McpVersion -and -not $TunnelVersion) { $TunnelVersion = $state.Current.TunnelVersion }
         $tunnel = Get-BridgeReleaseInfo -Version $TunnelVersion
         $mcp = Get-BridgeMcpInfo -Version $McpVersion
         if ($tunnel.Version -eq $state.Current.TunnelVersion -and $mcp.version -eq $state.Current.McpVersion) { return [pscustomobject]@{Changed=$false;Reason='Already installed'} }
