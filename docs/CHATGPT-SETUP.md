@@ -23,7 +23,7 @@ These are **copy-and-customize suggestions**, not required literal strings. Repl
 
 - **Name:** `Visible Chrome Bridge - <YOUR_NAME>`
 - **Description** (if the field is shown):
-  > Private tunnel from ChatGPT to <YOUR_NAME>'s existing local Google Chrome through Chrome DevTools MCP.
+  > Private tunnel from ChatGPT to my existing local Google Chrome through Chrome DevTools MCP.
 
 **ChatGPT — Add custom MCP server**
 
