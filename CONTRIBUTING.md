@@ -19,7 +19,7 @@ These checks do not authenticate a real tunnel or attach to Chrome.
 
 ## Manual acceptance checklist
 
-Before a stable release, use separate test credentials. Record OS build, shell/Node/Chrome versions, wrapper revision, exact dependencies, date, and pass/fail evidence. Test Windows 10 x64 and clean Windows 11 x64, covering both supported shells.
+Before declaring the bridge **production-ready**, use separate test credentials. Record OS build, shell/Node/Chrome versions, wrapper revision, exact dependencies, date, and pass/fail evidence. Test Windows 10 x64 and clean Windows 11 x64, covering both supported shells.
 
 - [ ] Install without admin rights into default and spaced paths.
 - [ ] Check actionable failures for missing Node/npm, unsupported Node, and missing/unsupported Chrome without altering unrelated configuration.
@@ -44,4 +44,4 @@ Never disable verification to obtain a passing test. Exclude secrets, identifyin
 
 Describe the concrete problem, resulting behavior, tests actually run, and limitations. Keep PowerShell 5.1 compatibility, quote paths, preserve ownership boundaries, and avoid process-name termination. Review the full diff and scan for secrets/private information before committing. Retain [upstream notices](THIRD-PARTY-NOTICES.md) when changing dependency handling.
 
-Prepare PRs from feature branches without rewriting `main`. Merging or publishing a stable release requires maintainer approval and completed acceptance evidence. Report vulnerabilities through [security guidance](docs/SECURITY.md#reporting-a-security-problem).
+Prepare PRs from feature branches without rewriting `main`. Publishing a **production-ready** release requires maintainer approval and completed acceptance evidence. Initial 0.x public versions may be published with explicit, documented gaps; version numbering alone does not certify production readiness. Report vulnerabilities through [security guidance](docs/SECURITY.md#reporting-a-security-problem).
