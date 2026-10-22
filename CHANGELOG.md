@@ -2,9 +2,18 @@
 
 ## Unreleased
 
-- Clarify first-time onboarding in the README, including Git/ZIP install, Platform workspace and API-key permissions, and a safe real browser test.
-- Document expected local status fields and the tested beta upstream dependency versions versus later releases.
-- Align security and architecture status statements with the first real-PC QA evidence.
+_No unreleased changes._
+
+## [v0.1.0](https://github.com/thdgeorge/visible-chrome-bridge/releases/tag/v0.1.0) — 2026-10-22
+
+First regular (non-prerelease) public release following `v0.1.0-beta.1`:
+
+- **Fix single-component updates:** `Update-Bridge.ps1 -McpVersion X.Y.Z` preserves the installed tunnel-client version; `-TunnelVersion` preserves the installed MCP version. No flags continue selecting the latest stable upstream versions of **both**. Existing stop/rollback safeguards remain.
+- Make `.\Install-Windows.ps1` without version flags the recommended **fresh-install** command (it already selected latest stable dependencies); retain exact `0.0.17` / `1.11.0` only as the first manually verified reference combination.
+- Document independent dependency updates, tool-catalog review/refresh in ChatGPT, and how to distinguish wrapper, tunnel-client, and Chrome DevTools MCP versions.
+- Add offline regression coverage for MCP-only, tunnel-only, explicit-both, latest-both, and unchanged-version operations.
+
+**Scope:** `v0.1.0` is an initial public version, not a claim of completed multi-machine, security or production-readiness acceptance. See [validation](docs/VALIDATION.md); [issue #2](https://github.com/thdgeorge/visible-chrome-bridge/issues/2) tracks a previously intermittent Windows CI readiness fixture failure.
 
 ## [v0.1.0-beta.1](https://github.com/thdgeorge/visible-chrome-bridge/releases/tag/v0.1.0-beta.1) — 2026-10-22
 
