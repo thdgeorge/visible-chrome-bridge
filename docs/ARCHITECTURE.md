@@ -2,7 +2,7 @@
 
 Design audit: 2026-10-22. This is an independent Windows lifecycle wrapper for
 official upstream software, not an MCP server or a browser automation engine.
-Real ChatGPT/Chrome acceptance remains a manual gate before a stable release.
+One real Windows happy-path ChatGPT/Chrome connection was accepted with mixed direct/user-reported evidence; broader clean-machine and negative-path tests remain acceptance gates before a stable release. See [validation](VALIDATION.md).
 
 ## Validated upstream design
 
@@ -99,5 +99,4 @@ connection's tool catalog; the operator reviews/rescans tools in ChatGPT.
 
 Automated tests use isolated temporary roots and synthetic credentials. They
 must not invoke the existing installation or attach to the user's browser.
-Authenticating a new tunnel, Chrome consent, real tool discovery, Windows 10,
-and cross-machine installation remain explicit manual QA gates.
+A separate tunnel, Chrome consent and one successful read-only ChatGPT browser call were included in initial manual QA (some evidence user-reported). Windows 10, another clean Windows machine, negative permission/consent tests, logon startup and real dependency upgrades/rollback remain manual acceptance gates. See [validation](VALIDATION.md).
