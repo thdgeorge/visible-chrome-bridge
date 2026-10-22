@@ -42,18 +42,18 @@ screenshots or browser data were captured.
 Follow [CONTRIBUTING.md](../CONTRIBUTING.md#manual-acceptance-checklist) before a
 stable release. Still unverified: Windows 10, clean Windows 11 without elevated
 privileges, clean-machine interactive credential installation, actual logon startup and
-scheduled-task behavior, end-to-end use of a new personal OpenAI tunnel,
-Chrome consent and decline/reconnect paths, ChatGPT discovery and real tool use,
+scheduled-task behavior, consent decline/reconnect and negative authentication paths,
 and upgrades/rollback across different upstream versions.
 
 No stable release has been published, and no production readiness is claimed.
 
 ## First real-PC manual QA: 2026-10-22
 
-In progress against wrapper revision `d21219a` plus the fixes described below. Scope: a separate QA tunnel,
+Initial scoped QA completed with application fixes from revision `e5da5ef`
+(the installed application matches that source). Scope: a separate QA tunnel,
 the default per-user private data directory, existing running Chrome, and
 read-only browser calls. Startup registration and automatic updates are excluded.
-No tunnel identifiers, credentials, account details, or browser contents are
+No tunnel identifiers, credentials, account details, or private browser contents are
 included in this record.
 
 Environment: Windows build `10.0.26200.0`, PowerShell `7.6.6`, Node.js `24.18.0`,
@@ -69,19 +69,41 @@ Chrome `155.0.8059.82`. The validation shell is not elevated.
 | Existing Chrome | PASS precondition: browser was already running; no explicit separate profile on its main process. |
 | QA tunnel | PASS separation: newly stored tunnel differs from legacy profile identifiers (comparison stayed in memory). User created a separate runtime key; a read-only service metadata request confirmed a workspace association exists. |
 | Real installation and credential storage | Initial attempt FAILED before credential entry: Windows PowerShell inherited an incompatible module path and could not load its security module. A controlled probe passed with `PSModulePath` absent from the child environment. Retry PASS: user completed both hidden prompts; pinned dependencies installed without elevation, DPAPI storage verified, root ACL protected with only current user and SYSTEM rules. |
-| Worker and local runtime | Initial start FAILED: official client rejected `warn` logging without an explicit format. Fixed with `--log.format struct-text`; restart PASS: running, healthy, and ready, with browser verification still false. Encrypted credentials unchanged by application repair. |
-| New tunnel authentication | PASS for authenticated read: HTTPS GET of this tunnel's metadata returned 200 with the new locally decrypted runtime key. Response contents were suppressed. End-to-end use permission and intended workspace access remain unproven until discovery/tool use. |
-| New ChatGPT connection and tool discovery | PARTIAL, user-reported: the separate QA connection is connected in ChatGPT. This validation chat exposes only the legacy plugin tools, so a tool call explicitly through the QA connection is still required to confirm discovery/use. |
-| Chrome consent | PENDING: user has been guided to invoke the QA connection against a manually opened public test page and report whether a consent prompt appeared. |
-| Read-only new browser operation | PENDING: no new integration call performed. |
-| Both integrations operational together | PARTIAL: legacy read-only tool still succeeds while the new runtime runs; new integration browser call remains pending. All seven baseline file hashes and the legacy scheduled-task definition match; original tunnel and Chrome PIDs remain alive. |
-| Owned stop and unrelated-process preservation | PASS before new browser use: graceful stop recorded `Stopped`; all seven captured owned processes exited. Original Chrome and legacy tunnel stayed alive, and the legacy read-only tool still succeeded. Explicit restart returned running/healthy/ready. Repeat after the new browser call remains pending. |
+| Worker and local runtime | Initial start FAILED: official client rejected `warn` logging without an explicit format. Fixed with `--log.format struct-text`; restart PASS: running, healthy, and ready. Encrypted credentials unchanged by application repair. The status command intentionally leaves `BrowserVerified=false`; manual browser evidence is recorded separately. |
+| New tunnel authentication | PASS: HTTPS GET of this tunnel's metadata returned 200 with the new locally decrypted runtime key; response contents were suppressed. The subsequent user-reported ChatGPT browser call exercised real end-to-end use through the QA connection. |
+| New ChatGPT connection and tool discovery | PASS, user-reported: the separate QA connection connected in ChatGPT and completed the requested browser tool call. This validation chat exposes only legacy tools, so the QA call was performed by the user in a separate ChatGPT conversation. |
+| Chrome consent | PASS, user-reported: a new Chrome access prompt appeared for the QA test and the user accepted it. No security prompt was automated. |
+| Read-only new browser operation | PASS, user-reported: QA found the existing manually opened `https://example.com/` tab and returned document title `Example Domain`. The user reported no browser/tab changes. No navigation, profile creation, or Chrome restart was performed by the validation agent. |
+| Both integrations operational together | PASS with mixed evidence: user reported the successful QA browser call; immediately afterward, the legacy read-only tool succeeded while the QA runtime was still running. All seven baseline file hashes and the legacy scheduled-task definition matched. Original tunnel and Chrome PIDs remained alive. |
+| Owned stop and unrelated-process preservation | PASS before and after new browser use: final graceful stop recorded `Stopped`, with zero of the seven captured owned processes remaining. Original Chrome and legacy tunnel stayed alive; legacy read-only tool still succeeded after the final stop. An earlier explicit restart returned running/healthy/ready. Final QA state is stopped. |
 | Real process credential exposure | PASS: neither locally decrypted credential appeared in the seven owned processes' command lines; values and command lines were suppressed. Chrome was outside the owned process tree. MCP environment stripping is covered by the offline shim test, not a live memory inspection. |
 | Startup/update registration | PASS: no registration for the new default root before or after installation/start; manual update policy only. |
 
-Pending checks are not passes or evidence of a failure. This first-PC run does
-not cover clean-machine installation, Windows 10, credential rotation, scheduled
-startup, unattended updates, or upgrades across upstream versions.
+No blocker remains for the initial installation/authentication/consent/read-only
+browser/coexistence/stop scope. Evidence explicitly marked user-reported was not
+independently replayed through the QA plugin in this validation chat.
+
+Remaining broader manual acceptance gates from `CONTRIBUTING.md` are:
+
+- Windows 10 and clean non-admin Windows 11 runs in both shells, including a
+  spaced installation path and real missing/unsupported prerequisite recovery.
+- Real installer reentry/idempotency and preference preservation, credential
+  replacement, and rejection under another Windows account (fixtures already
+  cover installer transactions and actual current-user DPAPI was tested).
+- Denied/expired credentials and missing workspace association, consent decline,
+  user-driven Chrome close/reopen, and reconnection after offline/worker failure.
+- Sign-out/logon, installed-copy startup registration, scheduled notify policy,
+  and explicitly opted-in unattended update behavior. These remain deliberately
+  excluded from this PC run; no registration or automatic updates were enabled.
+- Real version-to-version updates, corrupt/interrupted staging and rollback,
+  explicit restart and ChatGPT tool rescan after update. Current transaction
+  coverage uses fixtures rather than different live upstream versions.
+- Real uninstall with retained data, reinstall, and deliberate removal of test
+  data. No uninstall or private-data removal was performed in this run.
+
+Live MCP child memory/environment was not inspected; key stripping was verified
+with the actual launcher and synthetic child in offline tests. Broader pending
+checks are not passes or evidence of a failure. No stable release is approved.
 
 The failed first installation left an empty directory before writing its owner
 marker. The installer now removes only that newly created empty directory when
