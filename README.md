@@ -4,6 +4,17 @@
 
 A per-user Windows bridge from ChatGPT to your already-running Google Chrome. It connects official [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) to the official [OpenAI tunnel client](https://github.com/openai/tunnel-client) over stdio, with Secure MCP Tunnels carrying requests over outbound HTTPS.
 
+## Recommended tunnel and plugin names
+
+Each developer creates a **separate** tunnel and private ChatGPT plugin. To make setup predictable, use these suggested display names and replace `<YOUR_NAME>` with your name (for example, `George`):
+
+| Where | Name to enter |
+| --- | --- |
+| OpenAI Platform tunnel | `Visible Chrome Bridge - <YOUR_NAME>` |
+| ChatGPT custom MCP plugin | `Visible Chrome - <YOUR_NAME>` |
+
+For suggested **descriptions** and precise fields to copy, see [ChatGPT setup — names and descriptions](docs/CHATGPT-SETUP.md#recommended-names-and-descriptions). Append ` - QA` for an isolated test connection or ` - Work` when you need to distinguish work from personal connections. These are labels, not credentials: the actual connection uses **your own tunnel ID**, runtime key, and workspace association.
+
 ## Start here
 
 You need Windows 10/11 x64, Windows PowerShell 5.1 or PowerShell 7, supported Node.js LTS with npm, and Chrome 144+. Platform tunnel permissions and ChatGPT custom MCP permissions are separate; check [account eligibility](docs/CHATGPT-SETUP.md) first.
